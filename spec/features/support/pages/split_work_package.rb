@@ -26,31 +26,50 @@
 # See doc/COPYRIGHT.rdoc for more details.
 #++
 
-require 'support/pages/page'
-require 'support/pages/abstract_work_package_create'
+require_relative 'abstract_work_package'
+require_relative 'split_work_package_create'
 
 module Pages
-  class SplitWorkPackageCreate < AbstractWorkPackageCreate
-    attr_reader :project
+  class SplitWorkPackage < Pages::AbstractWorkPackage
+    attr_reader :selector
 
-    def initialize(project:, original_work_package: nil, parent_work_package: nil)
-      @project = project
+    def initialize(work_package, project = nil)
+      super work_package, project
+      @selector = '.work-packages--details'
+    end
 
-      super(original_work_package: original_work_package,
-            parent_work_package: parent_work_package)
+    def edit_field(attribute)
+      super(attribute, container)
+    end
+
+    def switch_to_fullscreen
+      find('.work-packages--details-fullscreen-icon').click
+      FullWorkPackage.new(work_package, project)
+    end
+
+    def closed?
+      expect(page).not_to have_selector(@selector)
     end
 
     private
 
-    def path
-      if original_work_package
-        project_work_packages_path(project) + "/details/#{original_work_package.id}/copy"
-      else
-        path = project_work_packages_path(project) + '/create_new'
-        path += "?parent_id=#{parent_work_package.id}" if parent_work_package
+    def container
+      find(@selector)
+    end
 
-        path
+    def path(tab = 'overview')
+      state = "#{work_package.id}/#{tab}"
+
+      if project
+        project_work_packages_path(project, "details/#{state}")
+      else
+        details_work_packages_path(state)
       end
+    end
+
+    def create_page(args)
+      args.merge!(project: project || work_package.project)
+      SplitWorkPackageCreate.new(args)
     end
   end
 end

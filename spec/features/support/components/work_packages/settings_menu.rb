@@ -26,27 +26,48 @@
 # See doc/COPYRIGHT.rdoc for more details.
 #++
 
-require 'support/pages/page'
-require 'support/pages/abstract_work_package_create'
+module Components
+  module WorkPackages
+    class SettingsMenu
+      include Components::FeatureMixin
 
-module Pages
-  class FullWorkPackageCreate < AbstractWorkPackageCreate
-    def edit_field(attribute)
-      super(attribute, container)
-    end
+      def open_and_save_query(name)
+        open!
+        find("#{selector} .menu-item", text: 'Save', match: :prefer_exact).click
+        page.within('.ng-modal-inner') do
+          find('#save-query-name').set name
+          click_on 'Save'
+        end
+      end
 
-    private
+      def open!
+        click_on 'work-packages-settings-button'
+        expect_open
+      end
 
-    def container
-      find('.work-packages--show-view')
-    end
+      def expect_open
+        expect(page).to have_selector(selector)
+      end
 
-    def path
-      if original_work_package
-        project_work_package_path(original_work_package.project, original_work_package.id) + '/copy'
-      elsif parent_work_package
-        new_project_work_packages_path(parent_work_package.project.identifier,
-                                       parent_id: parent_work_package.id)
+      def expect_closed
+        expect(page).to have_no_selector(selector)
+      end
+
+      def choose(target)
+        find("#{selector} .menu-item", text: target).click
+      end
+
+      def expect_options(options)
+        expect_open
+        options.each do |text|
+          expect(page).to have_selector("#{selector} a", text: text)
+        end
+      end
+
+      private
+
+      def selector
+        '#settingsDropdown'
       end
     end
   end

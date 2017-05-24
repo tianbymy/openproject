@@ -27,7 +27,6 @@
 #++
 
 require 'spec_helper'
-require 'features/projects/project_settings_page'
 
 describe 'form configuration', type: :feature, js: true do
   let(:admin) { FactoryGirl.create :admin }
@@ -43,7 +42,7 @@ describe 'form configuration', type: :feature, js: true do
                        category: category
   end
 
-  let(:wp_page) { Pages::FullWorkPackage.new(work_package) }
+  let(:wp_page) { ::Pages::FullWorkPackage.new(work_package) }
 
   let(:add_button) { page.find '.form-configuration--add-group' }
   let(:reset_button) { page.find '.form-configuration--reset' }
@@ -164,7 +163,7 @@ describe 'form configuration', type: :feature, js: true do
     end
 
     describe 'default configuration' do
-      let(:dialog) { ::NgConfirmationDialog.new }
+      let(:dialog) { ::Components::NgConfirmationDialog.new }
       before do
         login_as(admin)
         visit edit_type_tab_path(id: type.id, tab: "form_configuration")
@@ -344,7 +343,7 @@ describe 'form configuration', type: :feature, js: true do
     end
 
     describe 'custom fields' do
-      let(:project_settings_page) { ProjectSettingsPage.new(project) }
+      let(:project_settings_page) { ::Pages::ProjectSettingsPage.new(project) }
 
       let(:custom_fields) { [custom_field] }
       let(:custom_field) { FactoryGirl.create(:integer_issue_custom_field, name: 'MyNumber') }
@@ -434,7 +433,7 @@ describe 'form configuration', type: :feature, js: true do
   end
 
   describe "without EE token" do
-    let(:dialog) { ::NgConfirmationDialog.new }
+    let(:dialog) { ::Components::NgConfirmationDialog.new }
 
     it "should disable adding and renaming groups" do
       allow(EnterpriseToken).to receive(:allows_to?).with(:edit_attribute_groups).and_return(false)

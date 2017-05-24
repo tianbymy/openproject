@@ -26,40 +26,29 @@
 # See doc/COPYRIGHT.rdoc for more details.
 #++
 
-module Components
-  module WorkPackages
-    class ContextMenu
-      include Capybara::DSL
-      include RSpec::Matchers
+require_relative 'abstract_work_package_create'
 
-      def open_for(work_package)
-        find("#wp-row-#{work_package.id}").right_click
-        expect_open
-      end
+module Pages
+  class SplitWorkPackageCreate < AbstractWorkPackageCreate
+    attr_reader :project
 
-      def expect_open
-        expect(page).to have_selector(selector)
-      end
+    def initialize(project:, original_work_package: nil, parent_work_package: nil)
+      @project = project
 
-      def expect_closed
-        expect(page).to have_no_selector(selector)
-      end
+      super(original_work_package: original_work_package,
+            parent_work_package: parent_work_package)
+    end
 
-      def choose(target)
-        find("#{selector} a", text: target).click
-      end
+    private
 
-      def expect_options(options)
-        expect_open
-        options.each do |text|
-          expect(page).to have_selector("#{selector} a", text: text)
-        end
-      end
+    def path
+      if original_work_package
+        project_work_packages_path(project) + "/details/#{original_work_package.id}/copy"
+      else
+        path = project_work_packages_path(project) + '/create_new'
+        path += "?parent_id=#{parent_work_package.id}" if parent_work_package
 
-      private
-
-      def selector
-        '#work-package-context-menu'
+        path
       end
     end
   end

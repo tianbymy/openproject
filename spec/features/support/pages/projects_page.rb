@@ -26,50 +26,14 @@
 # See doc/COPYRIGHT.rdoc for more details.
 #++
 
-require 'support/pages/abstract_work_package'
-require 'support/pages/split_work_package_create'
+require_relative 'page'
 
-module Pages
-  class SplitWorkPackage < Pages::AbstractWorkPackage
-    attr_reader :selector
+class ProjectsPage < ::Pages::Page
+  def initialize(project)
+    @project = project
+  end
 
-    def initialize(work_package, project = nil)
-      super work_package, project
-      @selector = '.work-packages--details'
-    end
-
-    def edit_field(attribute)
-      super(attribute, container)
-    end
-
-    def switch_to_fullscreen
-      find('.work-packages--details-fullscreen-icon').click
-      FullWorkPackage.new(work_package, project)
-    end
-
-    def closed?
-      expect(page).not_to have_selector(@selector)
-    end
-
-    private
-
-    def container
-      find(@selector)
-    end
-
-    def path(tab = 'overview')
-      state = "#{work_package.id}/#{tab}"
-
-      if project
-        project_work_packages_path(project, "details/#{state}")
-      else
-        details_work_packages_path(state)
-      end
-    end
-
-    def create_page(args)
-      args.merge!(project: project || work_package.project)
-      SplitWorkPackageCreate.new(args)
-    end
+  def visit_confirm_destroy
+    visit confirm_destroy_project_path(@project)
   end
 end
