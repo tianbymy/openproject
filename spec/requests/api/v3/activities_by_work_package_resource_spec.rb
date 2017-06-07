@@ -39,9 +39,9 @@ describe API::V3::Activities::ActivitiesByWorkPackageAPI, type: :request do
 
     describe 'GET /api/v3/work_packages/:id/activities' do
       let(:project) { FactoryGirl.create(:project, is_public: false) }
-      let(:current_user) {
+      let(:current_user) do
         FactoryGirl.create(:user, member_in_project: project, member_through_role: role)
-      }
+      end
       let(:role) { FactoryGirl.create(:role, permissions: [:view_work_packages]) }
 
       before do
@@ -66,10 +66,11 @@ describe API::V3::Activities::ActivitiesByWorkPackageAPI, type: :request do
       let(:work_package) { FactoryGirl.create(:work_package) }
 
       shared_context 'create activity' do
-        before {
-          post (api_v3_paths.work_package_activities work_package.id),
-               { comment: { raw: comment } }.to_json, 'CONTENT_TYPE' => 'application/json'
-        }
+        before do
+          post api_v3_paths.work_package_activities(work_package.id),
+               params: { comment: { raw: comment } }.to_json,
+               headers: { 'CONTENT_TYPE' => 'application/json' }
+        end
       end
 
       it_behaves_like 'safeguarded API' do
