@@ -1,4 +1,5 @@
 #-- encoding: UTF-8
+
 #-- copyright
 # OpenProject is a project management system.
 # Copyright (C) 2012-2017 the OpenProject Foundation (OPF)
@@ -27,20 +28,17 @@
 # See doc/COPYRIGHT.rdoc for more details.
 #++
 
-module WorkPackage::PdfExporter
+class WorkPackage::Exporter::PDF < WorkPackage::Exporter::Base
   # Returns a PDF string of a list of work_packages
-  def pdf(work_packages, project, query, results, options = {})
+  def list
     ::WorkPackage::PdfExport::WorkPackageListToPdf
-      .new(work_packages,
-           project,
-           query,
-           results,
+      .new(query,
            options)
       .render!
   end
 
   # Returns a PDF string of a single work_package
-  def work_package_to_pdf(work_package)
+  def single
     ::WorkPackage::PdfExport::WorkPackageToPdf
       .new(work_package)
       .render!
