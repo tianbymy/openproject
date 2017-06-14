@@ -31,7 +31,6 @@
 class WorkPackagesController < ApplicationController
   include QueriesHelper
   include PaginationHelper
-  include OpenProject::ClientPreferenceExtractor
 
   accept_key_auth :index, :show
 
@@ -46,9 +45,6 @@ class WorkPackagesController < ApplicationController
   def show
     respond_to do |format|
       format.html do
-        gon.settings = client_preferences
-        gon.settings[:enabled_modules] = project ? project.enabled_modules.collect(&:name) : []
-
         render :show, locals: { work_package: work_package }, layout: 'angular'
       end
 
@@ -69,9 +65,6 @@ class WorkPackagesController < ApplicationController
   def index
     respond_to do |format|
       format.html do
-        gon.settings = client_preferences
-        gon.settings[:enabled_modules] = @project ? @project.enabled_modules.collect(&:name) : []
-
         render :index, locals: { query: @query, project: @project },
                        layout: 'angular'
       end
